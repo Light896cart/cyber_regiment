@@ -816,6 +816,5 @@ def main():
     print(f"   📁 Модель: {MODELS_DIR / 'catboost' / 'stage2_catboost_validation_v1'}/")
     print(f"{'=' * 60}")
 
-
 if __name__ == "__main__":
     main()
