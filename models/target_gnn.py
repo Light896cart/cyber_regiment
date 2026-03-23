@@ -11,7 +11,6 @@ import numpy as np
 from typing import Optional, Tuple, Union
 from pathlib import Path
 
-
 class TargetGraphConv(nn.Module):
     """
     Graph Convolution для таргетов.
