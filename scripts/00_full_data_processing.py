@@ -56,7 +56,6 @@ def get_project_root() -> Path:
     # Fallback: родительская директория от этого файла
     return Path(__file__).resolve().parent.parent
 
-
 BASE_DIR = get_project_root()
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "data_new"
