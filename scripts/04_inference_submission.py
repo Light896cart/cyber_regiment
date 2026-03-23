@@ -654,6 +654,5 @@ def main():
     print(f"{'=' * 60}")
     print(f"\n💡 РЕКОМЕНДАЦИЯ: Используй файл с _fixed_types для сабмита!")
 
-
 if __name__ == "__main__":
     main()
