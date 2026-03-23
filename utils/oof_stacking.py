@@ -99,6 +99,7 @@ class OOFStackingManager:
     # ГЕНЕРАЦИЯ OOF ПРЕДСКАЗАНИЙ
     # ==========================================================================
 
+
     def generate_oof_predictions(
             self,
             loader,  # DataLoader
