@@ -24,7 +24,7 @@
 # configs/catboost_config_stage2.yaml
 
 model_params:
-  iterations: 4100          # ← Больше чем Stage 1
+  iterations: 4100          # ← Больше чем Stage  1
   task_type: 'GPU'
   "verbose": 100
   "random_seed": 44
