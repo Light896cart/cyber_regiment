@@ -43,6 +43,7 @@ def get_project_root() -> Path:
 ROOT_DIR = get_project_root()
 sys.path.append(str(ROOT_DIR))
 
+
 ARTIFACTS_DIR = ROOT_DIR / "artifacts"
 CONFIG_PATH = ROOT_DIR / "configs" / "catboost" / "catboost_config_stage2.yaml"
 OPTUNA_RESULTS_DIR = ARTIFACTS_DIR / "optuna_results"
