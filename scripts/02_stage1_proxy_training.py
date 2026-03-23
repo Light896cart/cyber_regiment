@@ -1,6 +1,7 @@
 # =============================================================================
 # scripts/02_stage1_proxy_training.py
 # Stage 1: Multi-Model OOF + Calibration + Stacking
+# 🔧 ИСПРАВЛЕНО: Универсальные пути для команды и GitHub
 # =============================================================================
 # 🔥 ИЗМЕНЕНИЕ: Этот скрипт теперь сохраняет ОДИН объединенный файл для Stage 2
 # =============================================================================
@@ -13,8 +14,49 @@ import gc
 import json
 import os
 
-ROOT_DIR = Path(r"D:\Code\hackaton_cyberpolka_CV")
-sys.path.append(str(ROOT_DIR))
+
+# =============================================================================
+# 🔧 АВТО-ОПРЕДЕЛЕНИЕ КОРНЯ ПРОЕКТА (как в loader.py)
+# =============================================================================
+
+def get_project_root() -> Path:
+    """
+    🔍 Автоматически находит корень проекта.
+    Ищет по наличию .git, pyproject.toml или README.md
+    """
+    current = Path(__file__).resolve()
+
+    # Поднимаемся вверх по директориям (максимум 10 уровней)
+    for _ in range(10):
+        if (current / ".git").exists() or \
+                (current / "pyproject.toml").exists() or \
+                (current / "README.md").exists():
+            return current
+        current = current.parent
+
+    # Fallback: родительская директория от этого файла
+    return Path(__file__).resolve().parent.parent
+
+
+# 🔥 КОРЕНЬ ПРОЕКТА (авто-определение)
+PROJECT_ROOT = get_project_root()
+
+# 🔥 Пути относительно корня проекта (работают везде!)
+DEFAULT_CONFIGS_DIR = PROJECT_ROOT / "configs"
+DEFAULT_ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+DEFAULT_MODELS_DIR = PROJECT_ROOT / "models_weight"
+DEFAULT_DATA_DIR = PROJECT_ROOT / "data"
+DEFAULT_FOLDS_ROOT = PROJECT_ROOT / "folds"
+
+# 🔥 Можно переопределить через env variables
+CONFIGS_DIR = Path(os.getenv("CONFIGS_DIR", DEFAULT_CONFIGS_DIR))
+ARTIFACTS_DIR = Path(os.getenv("ARTIFACTS_DIR", DEFAULT_ARTIFACTS_DIR))
+MODELS_DIR = Path(os.getenv("MODELS_DIR", DEFAULT_MODELS_DIR))
+DATA_DIR = Path(os.getenv("DATA_DIR", DEFAULT_DATA_DIR))
+FOLDS_ROOT = Path(os.getenv("FOLDS_ROOT", DEFAULT_FOLDS_ROOT))
+
+# Добавляем корень проекта в путь
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.loader import DataLoader
 from models.catboost_model import CatBoostManager
@@ -35,8 +77,8 @@ class ModelCheckpointManager:
     🔥 ИСПРАВЛЕНО: Проверяет наличие metadata.json, как это делают менеджеры.
     """
 
-    def __init__(self, base_weights_dir: str):
-        self.base_weights_dir = Path(base_weights_dir)
+    def __init__(self, base_weights_dir: Path):
+        self.base_weights_dir = base_weights_dir
 
     def check_model_exists(self, model_name: str, fold_idx: int, stage: str = 'stage1', n_splits: int = 2) -> Path:
         """
@@ -126,12 +168,12 @@ class MultiModelOOFGenerator:
     Генерирует OOF предсказания от нескольких моделей для Stage 1.
     """
 
-    def __init__(self, artifacts_dir: str, weights_dir: str):
-        self.artifacts_dir = Path(artifacts_dir)
-        self.weights_dir = Path(weights_dir)
+    def __init__(self, artifacts_dir: Path, weights_dir: Path):
+        self.artifacts_dir = artifacts_dir
+        self.weights_dir = weights_dir
         self.oof_predictions = {}  # {model_name: {target_col: preds}}
         self.metadata = {}
-        self.checkpoint_manager = ModelCheckpointManager(str(self.weights_dir))
+        self.checkpoint_manager = ModelCheckpointManager(weights_dir)
 
     def generate_multi_model_oof(
             self,
@@ -195,19 +237,29 @@ class MultiModelOOFGenerator:
                         print(f"   ⏳ Модель не найдена, будем обучать...")
 
                 # Инициализация менеджера
+                # 🔥 ИСПРАВЛЕНО: Пути через Path
                 if model_name == 'catboost':
+                    config_path = CONFIGS_DIR / "catboost" / "catboost_config.yaml"
+                    if not config_path.exists():
+                        raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
                     manager = CatBoostManager(
-                        config_path=str(ROOT_DIR / "configs" / "catboost" / "catboost_config.yaml"),
+                        config_path=str(config_path),
                         fold_folder=f"folds_{n_splits}"
                     )
                 elif model_name == 'lgbm':
+                    config_path = CONFIGS_DIR / "lightgbm" / "lgbm_config.yaml"
+                    if not config_path.exists():
+                        raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
                     manager = LGBMManager(
-                        config_path=str(ROOT_DIR / "configs" / "lightgbm" / "lgbm_config.yaml"),
+                        config_path=str(config_path),
                         fold_folder=f"folds_{n_splits}"
                     )
                 elif model_name == 'nn':
+                    config_path = CONFIGS_DIR / "neural_network" / "nn_config.yaml"
+                    if not config_path.exists():
+                        raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
                     manager = NNManager(
-                        config_path=str(ROOT_DIR / "configs" / "neural_network" / "nn_config.yaml"),
+                        config_path=str(config_path),
                         fold_folder=f"folds_{n_splits}"
                     )
                 else:
@@ -347,9 +399,9 @@ def filter_adversarial_samples(
     model = LGBMClassifier(
         n_estimators=100,
         max_depth=5,
-        learning_rate= 0.1,
-        random_state = random_state,
-        verbose = -1
+        learning_rate=0.1,
+        random_state=random_state,
+        verbose=-1
     )
 
     model.fit(X_combined, y_adv)
@@ -373,6 +425,11 @@ def main():
     print(f"\n{'=' * 70}")
     print(f"🚀 STAGE 1 V2: MULTI-MODEL OOF + CALIBRATION")
     print(f"{'=' * 70}")
+    print(f"   📁 Проект: {PROJECT_ROOT}")
+    print(f"   📁 Configs: {CONFIGS_DIR}")
+    print(f"   📁 Artifacts: {ARTIFACTS_DIR}")
+    print(f"   📁 Models: {MODELS_DIR}")
+    print(f"{'=' * 70}")
 
     loader = DataLoader(cat_strategy="int")
 
@@ -382,6 +439,7 @@ def main():
     loader.load_full_data()
 
     # 🔥 ВАЖНО: n_splits должен совпадать с тем, что использовался при генерации фолдов
+    # 🔥 ИСПРАВЛЕНО: Используем FOLDS_ROOT из универсальных путей
     loader.load_folds_from_disk(n_splits=3)
     n_splits = loader.n_splits
 
@@ -392,7 +450,13 @@ def main():
 
     if USE_ADVERSARIAL_FILTER:
         X_full, _ = loader.get_full_data()
-        X_test = pd.read_parquet(ROOT_DIR / "data" / "test_final.parquet")
+
+        # 🔥 ИСПРАВЛЕНО: Path вместо хардкода
+        test_path = DATA_DIR / "test_final.parquet"
+        if not test_path.exists():
+            raise FileNotFoundError(f"❌ Тестовые данные не найдены: {test_path}")
+
+        X_test = pd.read_parquet(test_path)
 
         adversarial_idx = filter_adversarial_samples(
             X_full.to_pandas(),
@@ -400,7 +464,7 @@ def main():
             threshold=0.7
         )
 
-        adv_path = ROOT_DIR / "artifacts" / "adversarial_samples.json"
+        adv_path = ARTIFACTS_DIR / "adversarial_samples.json"
         with open(adv_path, 'w') as f:
             json.dump({'indices': adversarial_idx.tolist()}, f)
         print(f"   💾 Adversarial индексы сохранены")
@@ -408,11 +472,9 @@ def main():
     # =========================================================
     # 4. Multi-Model OOF
     # =========================================================
-    weights_dir = ROOT_DIR / "models_weight"
-
     oof_generator = MultiModelOOFGenerator(
-        artifacts_dir=str(ROOT_DIR / "artifacts"),
-        weights_dir=str(weights_dir)
+        artifacts_dir=ARTIFACTS_DIR,
+        weights_dir=MODELS_DIR
     )
 
     FORCE_RETRAIN = False
@@ -431,7 +493,12 @@ def main():
     USE_CALIBRATION = True
 
     if USE_CALIBRATION:
-        y_full = pd.read_parquet(ROOT_DIR / "data" / "train_target.parquet")
+        # 🔥 ИСПРАВЛЕНО: Path вместо хардкода
+        target_path = DATA_DIR / "train_target.parquet"
+        if not target_path.exists():
+            raise FileNotFoundError(f"❌ Target данные не найдены: {target_path}")
+
+        y_full = pd.read_parquet(target_path)
 
         id_cols = [col for col in y_full.columns if 'id' in col.lower() or 'customer' in col.lower()]
         y_full = y_full.drop(columns=id_cols)
@@ -453,7 +520,7 @@ def main():
     # 6. Генерация корреляционной матрицы
     # =========================================================
     oof_manager = OOFStackingManager(
-        artifacts_dir=str(ROOT_DIR / "artifacts")
+        artifacts_dir=str(ARTIFACTS_DIR)
     )
 
     oof_manager.oof_predictions = oof_predictions['catboost']
@@ -471,8 +538,8 @@ def main():
     print(f"\n{'=' * 70}")
     print(f"✅ STAGE 1 V2 ЗАВЕРШЕН")
     print(f"{'=' * 70}")
-    print(f"   📁 OOF файл (STACKED): artifacts/oof_predictions_STACKED_stage1.parquet")
-    print(f"   📁 Corr: artifacts/corr_matrix_stage1.json")
+    print(f"   📁 OOF файл (STACKED): {ARTIFACTS_DIR / 'oof_predictions_STACKED_stage1.parquet'}")
+    print(f"   📁 Corr: {ARTIFACTS_DIR / 'corr_matrix_stage1.json'}")
     print(f"   📊 Фолдов: {n_splits}")
     print(f"   🤖 Моделей: {list(oof_predictions.keys())}")
     print(f"   🔧 Calibration: {'✅' if USE_CALIBRATION else '❌'}")
@@ -483,10 +550,11 @@ def main():
         'models': list(oof_predictions.keys()),
         'calibration': USE_CALIBRATION,
         'adversarial_filter': USE_ADVERSARIAL_FILTER,
-        'timestamp': pd.Timestamp.now().isoformat()
+        'timestamp': pd.Timestamp.now().isoformat(),
+        'project_root': str(PROJECT_ROOT)
     }
 
-    meta_path = ROOT_DIR / "artifacts" / "stage1_v2_metadata.json"
+    meta_path = ARTIFACTS_DIR / "stage1_v2_metadata.json"
     with open(meta_path, 'w') as f:
         json.dump(meta, f, indent=2)
 

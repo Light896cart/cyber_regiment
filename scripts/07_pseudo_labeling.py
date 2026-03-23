@@ -1,7 +1,9 @@
 # =============================================================================
 # scripts/07_pseudo_labeling.py
 # 🔥 PSEUDO-LABELING: Дообучение на тестовых данных (ИСПРАВЛЕНО)
+# 🔧 ИСПРАВЛЕНО: Универсальные пути для команды и GitHub
 # =============================================================================
+
 import sys
 import gc
 import os
@@ -12,8 +14,51 @@ import pandas as pd
 import polars as pl
 from sklearn.metrics import roc_auc_score
 
-ROOT_DIR = Path(r"D:\Code\hackaton_cyberpolka_CV")
-sys.path.append(str(ROOT_DIR))
+
+# =============================================================================
+# 🔧 АВТО-ОПРЕДЕЛЕНИЕ КОРНЯ ПРОЕКТА (как в loader.py)
+# =============================================================================
+
+def get_project_root() -> Path:
+    """
+    🔍 Автоматически находит корень проекта.
+    Ищет по наличию .git, pyproject.toml или README.md
+    """
+    current = Path(__file__).resolve()
+
+    # Поднимаемся вверх по директориям (максимум 10 уровней)
+    for _ in range(10):
+        if (current / ".git").exists() or \
+                (current / "pyproject.toml").exists() or \
+                (current / "README.md").exists():
+            return current
+        current = current.parent
+
+    # Fallback: родительская директория от этого файла
+    return Path(__file__).resolve().parent.parent
+
+
+# 🔥 КОРЕНЬ ПРОЕКТА (авто-определение)
+PROJECT_ROOT = get_project_root()
+
+# 🔥 Пути относительно корня проекта (работают везде!)
+DEFAULT_DATA_DIR = PROJECT_ROOT / "data"
+DEFAULT_ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+DEFAULT_MODELS_DIR = PROJECT_ROOT / "models_weight"
+DEFAULT_CONFIGS_DIR = PROJECT_ROOT / "configs"
+DEFAULT_FOLDS_ROOT = PROJECT_ROOT / "folds"
+DEFAULT_SUBMISSIONS_DIR = PROJECT_ROOT / "submissions"
+
+# 🔥 Можно переопределить через env variables
+DATA_DIR = Path(os.getenv("DATA_DIR", DEFAULT_DATA_DIR))
+ARTIFACTS_DIR = Path(os.getenv("ARTIFACTS_DIR", DEFAULT_ARTIFACTS_DIR))
+MODELS_DIR = Path(os.getenv("MODELS_DIR", DEFAULT_MODELS_DIR))
+CONFIGS_DIR = Path(os.getenv("CONFIGS_DIR", DEFAULT_CONFIGS_DIR))
+FOLDS_ROOT = Path(os.getenv("FOLDS_ROOT", DEFAULT_FOLDS_ROOT))
+SUBMISSIONS_DIR = Path(os.getenv("SUBMISSIONS_DIR", DEFAULT_SUBMISSIONS_DIR))
+
+# Добавляем корень проекта в путь
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.loader import DataLoader
 from models.catboost_model import CatBoostManager
@@ -24,6 +69,7 @@ from utils.meta_features import MetaFeaturesGenerator
 # =============================================================================
 # ⚙️ КОНФИГУРАЦИЯ
 # =============================================================================
+
 PSEUDO_CONFIG = {
     'threshold_high': 0.95,
     'threshold_low': 0.05,
@@ -48,6 +94,9 @@ def select_confident_predictions(
         max_samples: int = 50000,
         stratify: bool = True
 ) -> tuple:
+    """
+    Отбирает уверенные предсказания для pseudo-labeling.
+    """
     n_test = len(list(predictions_dict.values())[0])
     confident_mask = np.zeros(n_test, dtype=bool)
     pseudo_labels = {col: [] for col in target_cols}
@@ -216,7 +265,9 @@ def retrain_models_with_pseudo(
     y_combined_pl = pl.from_pandas(y_combined)
 
     # 🔥 1. FEATURE SELECTION (строго 1500 признаков!)
-    importance_path = ROOT_DIR / "artifacts" / "feature_importance_stage2.csv"
+    # 🔥 ИСПРАВЛЕНО: Используем ARTIFACTS_DIR из универсальных путей
+    importance_path = ARTIFACTS_DIR / "feature_importance_stage2.csv"
+
     if importance_path.exists():
         imp_df = pd.read_csv(importance_path)
         selected_features = imp_df.head(1500)['feature'].tolist()  # ← СТРОГО 1500
@@ -230,6 +281,11 @@ def retrain_models_with_pseudo(
         cat_features = [f for f in cat_features if f in all_cols]
 
         print(f"   ✅ После Feature Selection: {len(all_cols)} признаков (строго 1500)")
+    else:
+        raise FileNotFoundError(
+            f"❌ Файл важности не найден: {importance_path}\n"
+            f"💡 Запусти сначала: python scripts/03_train_stage2_validate.py"
+        )
 
     # =====================================================================
     # 🔥 LightGBM (С GPU И ПРОГРЕВОМ - как в Stage 2)
@@ -237,8 +293,13 @@ def retrain_models_with_pseudo(
     if 'lgbm' in models_to_retrain:
         print(f"\n🌳 Дообучение LightGBM...")
 
+        # 🔥 ИСПРАВЛЕНО: Используем CONFIGS_DIR из универсальных путей
+        config_path = CONFIGS_DIR / "lightgbm" / "lgbm_config_stage2.yaml"
+        if not config_path.exists():
+            raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
+
         manager = LGBMManager(
-            config_path=str(ROOT_DIR / "configs" / "lightgbm" / "lgbm_config_stage2.yaml"),
+            config_path=str(config_path),
             fold_folder="lightgbm_pseudo"
         )
 
@@ -274,8 +335,13 @@ def retrain_models_with_pseudo(
     if 'catboost' in models_to_retrain:
         print(f"\n🌲 Дообучение CatBoost...")
 
+        # 🔥 ИСПРАВЛЕНО: Используем CONFIGS_DIR из универсальных путей
+        config_path = CONFIGS_DIR / "catboost" / "catboost_config_stage2.yaml"
+        if not config_path.exists():
+            raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
+
         manager = CatBoostManager(
-            config_path=str(ROOT_DIR / "configs" / "catboost" / "catboost_config_stage2.yaml"),
+            config_path=str(config_path),
             fold_folder="catboost_pseudo"
         )
 
@@ -310,6 +376,11 @@ def main():
     print(f"\n{'=' * 70}")
     print(f"🔥 PSEUDO-LABELING: Дообучение на тестовых данных")
     print(f"{'=' * 70}")
+    print(f"   📁 Проект: {PROJECT_ROOT}")
+    print(f"   📁 Data: {DATA_DIR}")
+    print(f"   📁 Artifacts: {ARTIFACTS_DIR}")
+    print(f"   📁 Models: {MODELS_DIR}")
+    print(f"{'=' * 70}")
 
     # =========================================================
     # 1. Загрузка данных
@@ -329,7 +400,15 @@ def main():
     print(f"   📊 Таргетов: {len(target_cols)}")
 
     # Test данные
-    test_path = ROOT_DIR / "data" / "test_final.parquet"
+    # 🔥 ИСПРАВЛЕНО: Используем DATA_DIR из универсальных путей
+    test_path = DATA_DIR / "test_final.parquet"
+
+    if not test_path.exists():
+        raise FileNotFoundError(
+            f"❌ Тестовые данные не найдены: {test_path}\n"
+            f"💡 Убедитесь что test_final.parquet существует в data/"
+        )
+
     df_test = pl.read_parquet(test_path)
     customer_ids = df_test["customer_id"].to_numpy()
 
@@ -352,17 +431,21 @@ def main():
 
     stage1_models = []
     for model_name in stage1_model_names:
-        model_path = ROOT_DIR / "models_weight" / f"folds_{n_splits_stage1}" / model_name / "model.cbm"
+        # 🔥 ИСПРАВЛЕНО: Используем MODELS_DIR и FOLDS_ROOT из универсальных путей
+        model_path = MODELS_DIR / f"folds_{n_splits_stage1}" / model_name / "model.cbm"
         if model_path.exists():
             manager = CatBoostManager(
-                config_path=str(ROOT_DIR / "configs" / "catboost" / "catboost_config.yaml"),
+                config_path=str(CONFIGS_DIR / "catboost" / "catboost_config.yaml"),
                 fold_folder=f"folds_{n_splits_stage1}"
             )
             manager.load_model(model_name, fold_folder=f"folds_{n_splits_stage1}")
             stage1_models.append(manager)
             print(f"   ✅ Загружено: {model_name}")
         else:
-            raise FileNotFoundError(f"Модель не найдена: {model_path}")
+            raise FileNotFoundError(
+                f"❌ Модель не найдена: {model_path}\n"
+                f"💡 Запусти сначала: python scripts/02_stage1_proxy_training.py"
+            )
 
     print(f"   📊 Stage 1 моделей: {len(stage1_models)}")
 
@@ -372,7 +455,8 @@ def main():
     print(f"\n📂 Загрузка Stage 2 моделей...")
 
     # 🔥 1. ЗАГРУЗКА СПИСКА ПРИЗНАКОВ
-    importance_path = ROOT_DIR / "artifacts" / "feature_importance_stage2.csv"
+    # 🔥 ИСПРАВЛЕНО: Используем ARTIFACTS_DIR из универсальных путей
+    importance_path = ARTIFACTS_DIR / "feature_importance_stage2.csv"
 
     if importance_path.exists():
         importance_df = pd.read_csv(importance_path)
@@ -380,7 +464,10 @@ def main():
         selected_features = importance_df.head(n_select)['feature'].tolist()
         print(f"   ✅ Отобрано топ-{n_select} признаков")
     else:
-        raise FileNotFoundError(f"Файл важности не найден: {importance_path}")
+        raise FileNotFoundError(
+            f"❌ Файл важности не найден: {importance_path}\n"
+            f"💡 Запусти сначала: python scripts/03_train_stage2_validate.py"
+        )
 
     # 🔥 2. Фильтрация cat_features
     cat_features_filtered = [f for f in cat_features if f in selected_features]
@@ -389,16 +476,25 @@ def main():
     # 🔥 3. Загрузка Stage 2 моделей
     models = {}
 
+    # 🔥 ИСПРАВЛЕНО: Используем CONFIGS_DIR из универсальных путей
+    cb_config_path = CONFIGS_DIR / "catboost" / "catboost_config_stage2.yaml"
+    if not cb_config_path.exists():
+        raise FileNotFoundError(f"❌ Конфиг не найден: {cb_config_path}")
+
     cb_manager = CatBoostManager(
-        config_path=str(ROOT_DIR / "configs" / "catboost" / "catboost_config_stage2.yaml"),
+        config_path=str(cb_config_path),
         fold_folder="catboost"
     )
     cb_manager.load_model("stage2_catboost_validation_v1", fold_folder="catboost")
     models['catboost'] = cb_manager
     print(f"   ✅ CatBoost загружен")
 
+    lgbm_config_path = CONFIGS_DIR / "lightgbm" / "lgbm_config_stage2.yaml"
+    if not lgbm_config_path.exists():
+        raise FileNotFoundError(f"❌ Конфиг не найден: {lgbm_config_path}")
+
     lgbm_manager = LGBMManager(
-        config_path=str(ROOT_DIR / "configs" / "lightgbm" / "lgbm_config_stage2.yaml"),
+        config_path=str(lgbm_config_path),
         fold_folder="lightgbm"
     )
     lgbm_manager.load_model("stage2_lgbm_validation_v1", fold_folder="lightgbm")
@@ -410,8 +506,9 @@ def main():
     # =========================================================
     print(f"\n🔧 Генерация мета-признаков для Test...")
 
+    # 🔥 ИСПРАВЛЕНО: Используем ARTIFACTS_DIR из универсальных путей
     meta_generator = MetaFeaturesGenerator(
-        artifacts_dir=str(ROOT_DIR / "artifacts")
+        artifacts_dir=str(ARTIFACTS_DIR)
     )
     meta_generator.load_correlation_matrix()
 
@@ -535,7 +632,7 @@ def main():
     stage1_models = []
     for model_name in stage1_model_names:
         manager = CatBoostManager(
-            config_path=str(ROOT_DIR / "configs" / "catboost" / "catboost_config.yaml"),
+            config_path=str(CONFIGS_DIR / "catboost" / "catboost_config.yaml"),
             fold_folder=f"folds_{n_splits_stage1}"
         )
         manager.load_model(model_name, fold_folder=f"folds_{n_splits_stage1}")
@@ -577,7 +674,8 @@ def main():
     print(f"   ✅ Мета-признаков: {len(meta_cols)}")
 
     # 🔥 FEATURE SELECTION (СТРОГО 1500 признаков - как в Stage 2!)
-    importance_path = ROOT_DIR / "artifacts" / "feature_importance_stage2.csv"
+    # 🔥 ИСПРАВЛЕНО: Используем ARTIFACTS_DIR из универсальных путей
+    importance_path = ARTIFACTS_DIR / "feature_importance_stage2.csv"
     if importance_path.exists():
         imp_df = pd.read_csv(importance_path)
         selected_features = imp_df.head(1500)['feature'].tolist()  # ← СТРОГО 1500
@@ -633,10 +731,12 @@ def main():
         'selection_stats': select_stats,
         'combine_stats': combine_stats,
         'models_retrained': list(retrained_models.keys()),
-        'timestamp': pd.Timestamp.now().isoformat()
+        'timestamp': pd.Timestamp.now().isoformat(),
+        'project_root': str(PROJECT_ROOT)
     }
 
-    stats_path = ROOT_DIR / "artifacts" / "pseudo_labeling_stats.json"
+    # 🔥 ИСПРАВЛЕНО: Используем ARTIFACTS_DIR из универсальных путей
+    stats_path = ARTIFACTS_DIR / "pseudo_labeling_stats.json"
     with open(stats_path, 'w', encoding='utf-8') as f:
         json.dump(pseudo_stats, f, indent=2, ensure_ascii=False)
 
@@ -648,7 +748,8 @@ def main():
             **{col: pseudo_labels[col][pseudo_indices] for col in target_cols}
         })
 
-        pseudo_path = ROOT_DIR / "artifacts" / "pseudo_labels.parquet"
+        # 🔥 ИСПРАВЛЕНО: Используем ARTIFACTS_DIR из универсальных путей
+        pseudo_path = ARTIFACTS_DIR / "pseudo_labels.parquet"
         pseudo_df.to_parquet(pseudo_path, index=False)
         print(f"   ✅ Pseudo-метки: {pseudo_path}")
 
@@ -684,8 +785,9 @@ def main():
     if nan_count > 0:
         print(f"   ⚠️  WARNING: {nan_count} NaN в сабмите!")
 
-    submission_path = ROOT_DIR / "submissions" / "submission_pseudo.parquet"
-    submission_path.parent.mkdir(exist_ok=True)
+    # 🔥 ИСПРАВЛЕНО: Используем SUBMISSIONS_DIR из универсальных путей
+    submission_path = SUBMISSIONS_DIR / "submission_pseudo.parquet"
+    submission_path.parent.mkdir(parents=True, exist_ok=True)
     submission.to_parquet(submission_path, index=False)
 
     print(f"   ✅ Сабмит сохранён: {submission_path}")

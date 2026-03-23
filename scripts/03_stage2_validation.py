@@ -2,6 +2,7 @@
 # scripts/03_train_stage2_validate.py
 # Stage 2: Валидация на hold-out (80/20) перед финальным обучением
 # 🔥 ИЗМЕНЕНО: Поддержка объединённого OOF файла из Stage 1
+# 🔧 ИСПРАВЛЕНО: Универсальные пути для команды и GitHub
 # =============================================================================
 
 import sys
@@ -12,8 +13,47 @@ from pathlib import Path
 import json
 from typing import List, Dict
 
-ROOT_DIR = Path(r"D:\Code\hackaton_cyberpolka_CV")
-sys.path.append(str(ROOT_DIR))
+
+# =============================================================================
+# 🔧 АВТО-ОПРЕДЕЛЕНИЕ КОРНЯ ПРОЕКТА (как в loader.py)
+# =============================================================================
+
+def get_project_root() -> Path:
+    """
+    🔍 Автоматически находит корень проекта.
+    Ищет по наличию .git, pyproject.toml или README.md
+    """
+    current = Path(__file__).resolve()
+
+    # Поднимаемся вверх по директориям (максимум 10 уровней)
+    for _ in range(10):
+        if (current / ".git").exists() or \
+                (current / "pyproject.toml").exists() or \
+                (current / "README.md").exists():
+            return current
+        current = current.parent
+
+    # Fallback: родительская директория от этого файла
+    return Path(__file__).resolve().parent.parent
+
+
+# 🔥 КОРЕНЬ ПРОЕКТА (авто-определение)
+PROJECT_ROOT = get_project_root()
+
+# 🔥 Пути относительно корня проекта (работают везде!)
+DEFAULT_ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+DEFAULT_MODELS_DIR = PROJECT_ROOT / "models_weight"
+DEFAULT_CONFIGS_DIR = PROJECT_ROOT / "configs"
+DEFAULT_FOLDS_ROOT = PROJECT_ROOT / "folds"
+
+# 🔥 Можно переопределить через env variables
+ARTIFACTS_DIR = Path(os.getenv("ARTIFACTS_DIR", DEFAULT_ARTIFACTS_DIR))
+MODELS_DIR = Path(os.getenv("MODELS_DIR", DEFAULT_MODELS_DIR))
+CONFIGS_DIR = Path(os.getenv("CONFIGS_DIR", DEFAULT_CONFIGS_DIR))
+FOLDS_ROOT = Path(os.getenv("FOLDS_ROOT", DEFAULT_FOLDS_ROOT))
+
+# Добавляем корень проекта в путь
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.loader import DataLoader
 from models.catboost_model import CatBoostManager
@@ -32,7 +72,7 @@ from sklearn.metrics import roc_auc_score
 
 def model_exists(model_name: str, fold_folder: str) -> bool:
     """Проверяет, существует ли уже обученная модель."""
-    model_path = ROOT_DIR / "models_weight" / fold_folder / model_name / "metadata.json"
+    model_path = MODELS_DIR / fold_folder / model_name / "metadata.json"
     exists = model_path.exists()
     if exists:
         print(f"   ✅ Модель уже существует: {model_name}")
@@ -159,6 +199,7 @@ def calculate_ensemble_auc(
                 pass
     return np.mean(aucs) if aucs else 0.0
 
+
 # =============================================================================
 # 🔥 НОВАЯ ФУНКЦИЯ: Извлечение OOF для одной модели из объединённого файла
 # =============================================================================
@@ -215,6 +256,7 @@ def main():
     print(f"   📋 Модели для обучения: {train_models}")
     print(f"   🔄 Переобучение: {'Да' if args.force_retrain else 'Нет'}")
     print(f"   📊 Test size: {args.test_size * 100:.0f}%")
+    print(f"   📁 Проект: {PROJECT_ROOT}")
     print(f"{'=' * 60}")
 
     # =========================================================
@@ -222,7 +264,7 @@ def main():
     # =========================================================
     loader = DataLoader(cat_strategy="int")
     meta_generator = MetaFeaturesGenerator(
-        artifacts_dir=str(ROOT_DIR / "artifacts")
+        artifacts_dir=str(ARTIFACTS_DIR)
     )
     loader.load_full_data()
     meta_generator.load_correlation_matrix()
@@ -264,10 +306,13 @@ def main():
     print(f"\n🔮 Генерация Stage 1 предсказаний для мета-признаков...")
 
     # 🔥 ИЗМЕНЕНИЕ 1: Правильный путь к объединённому файлу
-    oof_path = ROOT_DIR / "artifacts" / "oof_predictions_STACKED_stage1.parquet"
+    oof_path = ARTIFACTS_DIR / "oof_predictions_STACKED_stage1.parquet"
 
     if not oof_path.exists():
-        raise FileNotFoundError(f"OOF файл не найден: {oof_path}")
+        raise FileNotFoundError(
+            f"❌ OOF файл не найден: {oof_path}\n"
+            f"💡 Запусти сначала: python scripts/02_stage1_proxy_training.py"
+        )
 
     df_oof_stacked = pd.read_parquet(oof_path)
     print(f"   📊 Загружен STACKED OOF: {df_oof_stacked.shape}")
@@ -332,10 +377,13 @@ def main():
 
     del X_train_pd
 
-    X_train_extended.to_parquet(ROOT_DIR / "artifacts" / "X_train_extended_val.parquet", index=False)
-    X_val_extended.to_parquet(ROOT_DIR / "artifacts" / "X_val_extended_val.parquet", index=False)
-    y_train_pd.to_parquet(ROOT_DIR / "artifacts" / "y_train_val.parquet", index=False)
-    y_val_pd.to_parquet(ROOT_DIR / "artifacts" / "y_val_val.parquet", index=False)
+    # 🔥 Сохраняем промежуточные файлы
+    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    X_train_extended.to_parquet(ARTIFACTS_DIR / "X_train_extended_val.parquet", index=False)
+    X_val_extended.to_parquet(ARTIFACTS_DIR / "X_val_extended_val.parquet", index=False)
+    y_train_pd.to_parquet(ARTIFACTS_DIR / "y_train_val.parquet", index=False)
+    y_val_pd.to_parquet(ARTIFACTS_DIR / "y_val_val.parquet", index=False)
 
     X_train_pl = pl.from_pandas(X_train_extended)
     y_train_pl = pl.from_pandas(y_train_pd)
@@ -360,7 +408,7 @@ def main():
             verbose=True
         )
 
-        importance_df.to_csv(ROOT_DIR / "artifacts" / "feature_importance_stage2.csv", index=False)
+        importance_df.to_csv(ARTIFACTS_DIR / "feature_importance_stage2.csv", index=False)
         print(f"   💾 Важность сохранена: artifacts/feature_importance_stage2.csv")
 
         X_train_pl = X_train_pl.select(selected_features)
@@ -377,13 +425,11 @@ def main():
         print(f"   🏷️  Категориальных признаков: {len(cat_features_filtered)} (было {len(loader.cat_features)})")
         print(f"   📊 Экономия памяти: ~{100 * (1 - len(selected_features) / 2168):.1f}%")
 
-
-
     print(f"\n{'=' * 60}")
     print(f"🔍 ЗАГРУЗКА СУЩЕСТВУЮЩЕЙ ВАЖНОСТИ ПРИЗНАКОВ")
     print(f"{'=' * 60}")
 
-    importance_path = ROOT_DIR / "artifacts" / "feature_importance_stage2.csv"
+    importance_path = ARTIFACTS_DIR / "feature_importance_stage2.csv"
 
     if importance_path.exists():
         importance_df = pd.read_csv(importance_path)
@@ -401,8 +447,10 @@ def main():
         # Проверка сколько ещё осталось
         print(f"   📊 Ещё доступно: {len(importance_df) - n_select} признаков")
     else:
-        raise FileNotFoundError(f"Файл важности не найден: {importance_path}")
-
+        raise FileNotFoundError(
+            f"❌ Файл важности не найден: {importance_path}\n"
+            f"💡 Запусти сначала feature selection или создай файл вручную"
+        )
 
     # Дальше используем selected_features как обычно
     X_train_pl = X_train_pl.select(selected_features)
@@ -412,8 +460,6 @@ def main():
 
     print(f"   ✅ Признаков после отбора: {len(selected_features)}")
     print(f"   🏷️  Категориальных признаков: {len(cat_features_filtered)}")
-
-
 
     # =========================================================
     # 7. Обучение Stage 2 с валидацией
@@ -437,8 +483,12 @@ def main():
             manager = load_existing_model("stage2_catboost_validation_v1", "catboost", CatBoostManager)
             auc_cb = manager.metadata['metrics']['macro_roc_auc']
         else:
+            config_path = CONFIGS_DIR / "catboost" / "catboost_config_stage2.yaml"
+            if not config_path.exists():
+                raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
+
             manager = CatBoostManager(
-                config_path=str(ROOT_DIR / "configs" / "catboost" / "catboost_config_stage2.yaml"),
+                config_path=str(config_path),
                 fold_folder="catboost"
             )
 
@@ -484,8 +534,12 @@ def main():
             manager_nn = load_existing_model("stage2_nn_validation_v1", "neural_network", NNManager)
             auc_nn = manager_nn.metadata['metrics']['macro_roc_auc']
         else:
+            config_path = CONFIGS_DIR / "neural_network" / "nn_config_stage2.yaml"
+            if not config_path.exists():
+                raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
+
             manager_nn = NNManager(
-                config_path=str(ROOT_DIR / "configs" / "neural_network" / "nn_config_stage2.yaml"),
+                config_path=str(config_path),
                 fold_folder="neural_network"
             )
 
@@ -534,8 +588,12 @@ def main():
             manager_lgbm = load_existing_model("stage2_lgbm_validation_v1", "lightgbm", LGBMManager)
             auc_lgbm = manager_lgbm.metadata['metrics']['macro_roc_auc']
         else:
+            config_path = CONFIGS_DIR / "lightgbm" / "lgbm_config_stage2.yaml"
+            if not config_path.exists():
+                raise FileNotFoundError(f"❌ Конфиг не найден: {config_path}")
+
             manager_lgbm = LGBMManager(
-                config_path=str(ROOT_DIR / "configs" / "lightgbm" / "lgbm_config_stage2.yaml"),
+                config_path=str(config_path),
                 fold_folder="lightgbm"
             )
 
@@ -586,7 +644,7 @@ def main():
     print(f"📊 СРАВНЕНИЕ STAGE 1 vs STAGE 2")
     print(f"{'=' * 60}")
 
-    stage1_results_path = ROOT_DIR / "artifacts" / "stage1_cv_results.json"
+    stage1_results_path = ARTIFACTS_DIR / "stage1_cv_results.json"
     if stage1_results_path.exists():
         with open(stage1_results_path, 'r') as f:
             stage1_data = json.load(f)
@@ -653,7 +711,7 @@ def main():
     )
 
     # 🔥 Сохраняем per-target веса
-    mapping_path = ROOT_DIR / "artifacts" / "best_model_per_target_map.json"
+    mapping_path = ARTIFACTS_DIR / "best_model_per_target_map.json"
     optimizer.save(mapping_path, metadata={
         'stage': 'stage2_validation',
         'n_iterations': 70,
@@ -744,17 +802,18 @@ def main():
         'trained_models': train_models,
         'ensemble_comparison': comparison_results,
         'best_ensemble_method': best_method,
-        'mapping_path': str(mapping_path)  # ← Исправлено
+        'mapping_path': str(mapping_path),
+        'project_root': str(PROJECT_ROOT)
     }
 
-    with open(ROOT_DIR / "artifacts" / "stage2_validation_results.json", 'w') as f:
+    with open(ARTIFACTS_DIR / "stage2_validation_results.json", 'w') as f:
         json.dump(results, f, indent=2)
 
     print(f"\n{'=' * 60}")
     print(f"✅ ВАЛИДАЦИЯ STAGE 2 ЗАВЕРШЕНА")
-    print(f"   📁 Результаты: artifacts/stage2_validation_results.json")
+    print(f"   📁 Результаты: {ARTIFACTS_DIR / 'stage2_validation_results.json'}")
     print(f"   📁 Веса: {mapping_path}")
-    print(f"   📁 Модель: models_weight/catboost/stage2_catboost_validation_v1/")
+    print(f"   📁 Модель: {MODELS_DIR / 'catboost' / 'stage2_catboost_validation_v1'}/")
     print(f"{'=' * 60}")
 
 

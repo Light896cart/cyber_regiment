@@ -1,6 +1,7 @@
 # =============================================================================
 # scripts/06_analyze_models.py
 # Детальный анализ моделей по каждому таргету + статистика таргетов
+# 🔧 ИСПРАВЛЕНО: Универсальные пути для команды и GitHub
 # =============================================================================
 
 import sys
@@ -13,8 +14,47 @@ import numpy as np
 import polars as pl
 from sklearn.metrics import roc_auc_score
 
-ROOT_DIR = Path(r"D:\Code\hackaton_cyberpolka_CV")
-sys.path.append(str(ROOT_DIR))
+
+# =============================================================================
+# 🔧 АВТО-ОПРЕДЕЛЕНИЕ КОРНЯ ПРОЕКТА (как в loader.py)
+# =============================================================================
+
+def get_project_root() -> Path:
+    """
+    🔍 Автоматически находит корень проекта.
+    Ищет по наличию .git, pyproject.toml или README.md
+    """
+    current = Path(__file__).resolve()
+
+    # Поднимаемся вверх по директориям (максимум 10 уровней)
+    for _ in range(10):
+        if (current / ".git").exists() or \
+                (current / "pyproject.toml").exists() or \
+                (current / "README.md").exists():
+            return current
+        current = current.parent
+
+    # Fallback: родительская директория от этого файла
+    return Path(__file__).resolve().parent.parent
+
+
+# 🔥 КОРЕНЬ ПРОЕКТА (авто-определение)
+PROJECT_ROOT = get_project_root()
+
+# 🔥 Пути относительно корня проекта (работают везде!)
+DEFAULT_ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+DEFAULT_MODELS_DIR = PROJECT_ROOT / "models_weight"
+DEFAULT_DATA_DIR = PROJECT_ROOT / "data"
+DEFAULT_FOLDS_ROOT = PROJECT_ROOT / "folds"
+
+# 🔥 Можно переопределить через env variables
+ARTIFACTS_DIR = Path(os.getenv("ARTIFACTS_DIR", DEFAULT_ARTIFACTS_DIR))
+MODELS_DIR = Path(os.getenv("MODELS_DIR", DEFAULT_MODELS_DIR))
+DATA_DIR = Path(os.getenv("DATA_DIR", DEFAULT_DATA_DIR))
+FOLDS_ROOT = Path(os.getenv("FOLDS_ROOT", DEFAULT_FOLDS_ROOT))
+
+# Добавляем корень проекта в путь
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.loader import DataLoader
 from models.catboost_model import CatBoostManager
@@ -29,6 +69,10 @@ def main():
     print(f"\n{'=' * 80}")
     print(f"🔬 ДЕТАЛЬНЫЙ АНАЛИЗ МОДЕЛЕЙ ПО КАЖДОМУ ТАРГЕТУ")
     print(f"{'=' * 80}\n")
+    print(f"   📁 Проект: {PROJECT_ROOT}")
+    print(f"   📁 Artifacts: {ARTIFACTS_DIR}")
+    print(f"   📁 Models: {MODELS_DIR}")
+    print(f"{'=' * 80}\n")
 
     loader = DataLoader(cat_strategy="int")
     loader.load_full_data()
@@ -40,8 +84,23 @@ def main():
     # =========================================================
     print(f"📂 Загрузка валидационных данных...")
 
-    X_val_extended = pd.read_parquet(ROOT_DIR / "artifacts" / "X_val_extended_val.parquet")
-    y_val = pd.read_parquet(ROOT_DIR / "artifacts" / "y_val_val.parquet")
+    # 🔥 ИСПРАВЛЕНО: Используем ARTIFACTS_DIR из универсальных путей
+    x_val_path = ARTIFACTS_DIR / "X_val_extended_val.parquet"
+    y_val_path = ARTIFACTS_DIR / "y_val_val.parquet"
+
+    if not x_val_path.exists():
+        raise FileNotFoundError(
+            f"❌ Валидационные данные не найдены: {x_val_path}\n"
+            f"💡 Запусти сначала: python scripts/03_train_stage2_validate.py"
+        )
+
+    if not y_val_path.exists():
+        raise FileNotFoundError(
+            f"❌ Валидационные таргеты не найдены: {y_val_path}"
+        )
+
+    X_val_extended = pd.read_parquet(x_val_path)
+    y_val = pd.read_parquet(y_val_path)
 
     print(f"   📊 Validation: {X_val_extended.shape[0]} строк, {X_val_extended.shape[1]} признаков")
     print(f"   📊 Таргетов: {len(target_cols)}\n")
@@ -57,6 +116,13 @@ def main():
 
     # CatBoost
     print(f"   🌲 Загрузка CatBoost...")
+    model_cb_path = MODELS_DIR / "catboost" / "stage2_catboost_validation_v1" / "metadata.json"
+    if not model_cb_path.exists():
+        raise FileNotFoundError(
+            f"❌ CatBoost модель не найдена: {model_cb_path}\n"
+            f"💡 Запусти сначала: python scripts/03_train_stage2_validate.py"
+        )
+
     model_cb = CatBoostManager()
     model_cb.load_model("stage2_catboost_validation_v1", fold_folder="catboost")
     preds_cb = model_cb.predict(X_val_pl, cat_features=cat_features)
@@ -64,6 +130,13 @@ def main():
 
     # Neural Network
     print(f"   🧠 Загрузка NN...")
+    model_nn_path = MODELS_DIR / "neural_network" / "stage2_nn_validation_v1" / "metadata.json"
+    if not model_nn_path.exists():
+        raise FileNotFoundError(
+            f"❌ NN модель не найдена: {model_nn_path}\n"
+            f"💡 Запусти сначала: python scripts/03_train_stage2_validate.py"
+        )
+
     model_nn = NNManager()
     model_nn.load_model("stage2_nn_validation_v1", fold_folder="neural_network")
     preds_nn = model_nn.predict(X_val_pl, cat_features=cat_features)
@@ -71,6 +144,13 @@ def main():
 
     # LightGBM
     print(f"   🌳 Загрузка LGBM...")
+    model_lgbm_path = MODELS_DIR / "lightgbm" / "stage2_lgbm_validation_v1" / "metadata.json"
+    if not model_lgbm_path.exists():
+        raise FileNotFoundError(
+            f"❌ LGBM модель не найдена: {model_lgbm_path}\n"
+            f"💡 Запусти сначала: python scripts/03_train_stage2_validate.py"
+        )
+
     model_lgbm = LGBMManager()
     model_lgbm.load_model("stage2_lgbm_validation_v1", fold_folder="lightgbm")
     preds_lgbm = model_lgbm.predict(X_val_pl, cat_features=cat_features)
@@ -378,23 +458,26 @@ def main():
     print(f"💾 СОХРАНЕНИЕ РЕЗУЛЬТАТОВ")
     print(f"{'=' * 80}\n")
 
+    # 🔥 Создаём директорию если не существует
+    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+
     # Детальные результаты по таргетам
-    output_path = ROOT_DIR / "artifacts" / "model_analysis_per_target.csv"
+    output_path = ARTIFACTS_DIR / "model_analysis_per_target.csv"
     df_results.to_csv(output_path, index=False, float_format='%.6f')
     print(f"   ✅ Сохранено: {output_path}")
 
     # Статистика таргетов
-    stats_path = ROOT_DIR / "artifacts" / "target_statistics.csv"
+    stats_path = ARTIFACTS_DIR / "target_statistics.csv"
     df_target_stats.to_csv(stats_path, index=False, float_format='%.3f')
     print(f"   ✅ Сохранено: {stats_path}")
 
     # Сводная статистика
-    summary_path = ROOT_DIR / "artifacts" / "model_analysis_summary.csv"
+    summary_path = ARTIFACTS_DIR / "model_analysis_summary.csv"
     df_summary.to_csv(summary_path, index=False, float_format='%.6f')
     print(f"   ✅ Сохранено: {summary_path}")
 
     # JSON с полным анализом
-    json_path = ROOT_DIR / "artifacts" / "model_analysis_full.json"
+    json_path = ARTIFACTS_DIR / "model_analysis_full.json"
     analysis_data = {
         'target_statistics': df_target_stats.to_dict(),
         'correlation': {
@@ -419,7 +502,8 @@ def main():
             'rare': int(n_rare),
             'imbalanced': int(n_imbalanced),
             'balanced': int(n_balanced)
-        }
+        },
+        'project_root': str(PROJECT_ROOT)
     }
 
     with open(json_path, 'w', encoding='utf-8') as f:
@@ -480,7 +564,7 @@ def main():
     print(f"{'=' * 80}\n")
 
     # Загружаем feature importance
-    importance_path = ROOT_DIR / "artifacts" / "feature_importance_stage2.csv"
+    importance_path = ARTIFACTS_DIR / "feature_importance_stage2.csv"
     if importance_path.exists():
         imp_df = pd.read_csv(importance_path)
 
@@ -494,6 +578,8 @@ def main():
             print(f"   • {target}: (требуется таргет-специфичная importance)")
 
         print(f"\n   💡 Рекомендация: сохрани importance отдельно для каждого таргета")
+    else:
+        print(f"   ⚠️  Файл важности не найден: {importance_path}")
 
     # =============================================================================
     # 17. АНАЛИЗ: Калибровка предсказаний (реальная частота vs предсказанная)
@@ -502,29 +588,32 @@ def main():
     print(f"📐 АНАЛИЗ: Калибровка предсказаний")
     print(f"{'=' * 80}\n")
 
-    from sklearn.calibration import calibration_curve
-    import matplotlib.pyplot as plt
+    try:
+        from sklearn.calibration import calibration_curve
+        import matplotlib.pyplot as plt
 
-    # Проверяем 3 случайных таргета
-    sample_targets = np.random.choice(target_cols, 3, replace=False)
+        # Проверяем 3 случайных таргета
+        sample_targets = np.random.choice(target_cols, 3, replace=False)
 
-    for target in sample_targets:
-        y_true = y_val[target].values
-        y_pred = preds_cb[target]  # или ансамбль
+        for target in sample_targets:
+            y_true = y_val[target].values
+            y_pred = preds_cb[target]  # или ансамбль
 
-        # Биннинг предсказаний
-        fractions, means = calibration_curve(y_true, y_pred, n_bins=10)
+            # Биннинг предсказаний
+            fractions, means = calibration_curve(y_true, y_pred, n_bins=10)
 
-        # Идеальная калибровка: fractions == means
-        calibration_error = np.mean(np.abs(fractions - means))
+            # Идеальная калибровка: fractions == means
+            calibration_error = np.mean(np.abs(fractions - means))
 
-        print(f"   {target}:")
-        print(f"      Calibration Error: {calibration_error:.4f} (чем меньше, тем лучше)")
-        print(f"      Mean prediction: {y_pred.mean():.4f}, Actual positive rate: {y_true.mean():.4f}")
+            print(f"   {target}:")
+            print(f"      Calibration Error: {calibration_error:.4f} (чем меньше, тем лучше)")
+            print(f"      Mean prediction: {y_pred.mean():.4f}, Actual positive rate: {y_true.mean():.4f}")
 
-        if calibration_error > 0.1:
-            print(f"      ⚠️  Плохая калибровка! Попробуй Platt scaling или isotonic regression")
-        print()
+            if calibration_error > 0.1:
+                print(f"      ⚠️  Плохая калибровка! Попробуй Platt scaling или isotonic regression")
+            print()
+    except ImportError:
+        print(f"   ⚠️  Matplotlib не установлен, пропускаем визуализацию калибровки")
 
     # =============================================================================
     # 18. АНАЛИЗ: Паттерны ошибок (для 3 худших таргетов)

@@ -31,7 +31,25 @@ warnings.filterwarnings('ignore')
 # 1. НАСТРОЙКА ПУТЕЙ
 # =============================================================================
 
-ROOT_DIR = Path(r"D:\Code\hackaton_cyberpolka_CV")
+def get_project_root() -> Path:
+    """
+    🔍 Автоматически находит корень проекта.
+    Ищет по наличию .git, pyproject.toml или README.md
+    """
+    current = Path(__file__).resolve()
+
+    # Поднимаемся вверх по директориям (максимум 10 уровней)
+    for _ in range(10):
+        if (current / ".git").exists() or \
+                (current / "pyproject.toml").exists() or \
+                (current / "README.md").exists():
+            return current
+        current = current.parent
+
+    # Fallback: родительская директория от этого файла
+    return Path(__file__).resolve().parent.parent
+
+ROOT_DIR = get_project_root()
 sys.path.append(str(ROOT_DIR))
 
 ARTIFACTS_DIR = ROOT_DIR / "artifacts"
