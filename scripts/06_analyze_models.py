@@ -729,6 +729,5 @@ def main():
         print(f"   📈 Ожидаемый Mean AUC: {best_mean_auc:.4f} (было {df_results['auc_ensemble'].mean():.4f})")
         print(f"\n   💡 Примени эти веса в продакшене!")
 
-
 if __name__ == "__main__":
     main()
