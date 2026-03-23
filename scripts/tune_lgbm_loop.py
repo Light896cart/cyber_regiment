@@ -34,6 +34,7 @@ def get_project_root() -> Path:
 ROOT_DIR = get_project_root()
 PYTHON_EXE = sys.executable
 
+
 # 🔥 Путь к скрипту одиночного запуска LightGBM
 SINGLE_SCRIPT = ROOT_DIR / "scripts" / "tune_lgbm_test.py"
 
