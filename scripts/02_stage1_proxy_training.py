@@ -558,6 +558,5 @@ def main():
     with open(meta_path, 'w') as f:
         json.dump(meta, f, indent=2)
 
-
 if __name__ == "__main__":
     main()
