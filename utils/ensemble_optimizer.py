@@ -64,6 +64,7 @@ class EnsembleWeightOptimizer:
 
         return auc
 
+
     def _loss_function(self, weights: np.ndarray) -> float:
         """Функция потерь (минимизируем отрицательный AUC)"""
         return -self._calculate_macro_auc(weights)
