@@ -22,6 +22,7 @@ def get_cv_splits(
 
     Yields:
         (train_idx, val_idx) — индексы для train и validation
+
     """
     if n_splits == 1:
         # Режим Hold-out (быстрый тест)
