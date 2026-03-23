@@ -34,6 +34,7 @@ def get_project_root() -> Path:
     # Fallback: родительская директория от этого файла
     return Path(__file__).resolve().parent.parent
 
+
 ROOT_DIR = get_project_root()
 sys.path.append(str(ROOT_DIR))
 
