@@ -270,3 +270,4 @@ class MetaFeaturesGenerator:
         print(f"✅ Загружены OOF предсказания: {len(df_oof)} строк, {len(df_oof.columns)} таргетов")
 
         return oof_predictions
+
