@@ -34,6 +34,7 @@ def get_project_root() -> Path:
             return current
         current = current.parent
 
+
     # Fallback: родительская директория от этого файла
     return Path(__file__).resolve().parent.parent
 
