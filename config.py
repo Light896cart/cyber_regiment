@@ -29,6 +29,7 @@ BASE_DIR = get_project_root()
 DATA_DIR = BASE_DIR / "data_new"
 OUTPUT_DIR = BASE_DIR / "data_new"  # Сохраняем туда же
 
+
 # Входные файлы
 TRAIN_MAIN = DATA_DIR / "train_main_features.parquet"
 TEST_MAIN = DATA_DIR / "test_main_features.parquet"
