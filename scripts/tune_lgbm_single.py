@@ -52,6 +52,7 @@ def get_project_root() -> Path:
 ROOT_DIR = get_project_root()
 sys.path.append(str(ROOT_DIR))
 
+
 ARTIFACTS_DIR = ROOT_DIR / "artifacts"
 # 🔥 Путь к конфигам LightGBM
 CONFIG_PATH = ROOT_DIR / "configs" / "lightgbm" / "lgbm_config.yaml"
