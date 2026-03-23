@@ -410,6 +410,7 @@ def main():
 
     print(f"   ⚙️  Параметры: num_leaves={params['num_leaves']}, lr={params['learning_rate']:.4f}")
 
+
     # 3. Обучение
     score = 0.0
     try:
