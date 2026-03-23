@@ -11,7 +11,6 @@ from scipy.optimize import minimize, differential_evolution
 import json
 from pathlib import Path
 
-
 class MetaLearnerPerTarget:
     """
     Meta-Learner который обучает отдельные веса для каждого таргета.
