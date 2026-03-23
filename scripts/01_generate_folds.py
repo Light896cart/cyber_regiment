@@ -33,7 +33,6 @@ def get_project_root() -> Path:
     # Fallback: родительская директория от этого файла
     return Path(__file__).resolve().parent.parent
 
-
 # 🔥 КОРЕНЬ ПРОЕКТА (авто-определение)
 PROJECT_ROOT = get_project_root()
 
