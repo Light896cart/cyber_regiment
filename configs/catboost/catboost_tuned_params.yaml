@@ -1,0 +1,10 @@
+best_auc: 0.0
+best_params:
+  bootstrap_type: Bernoulli
+  depth: 4
+  l2_leaf_reg: 2.955314720132272
+  learning_rate: 0.012763257238291022
+  max_bin: 183
+  min_data_in_leaf: 33
+  subsample: 0.8178832785171977
+  task_type: GPU

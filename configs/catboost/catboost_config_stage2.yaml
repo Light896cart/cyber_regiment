@@ -1,0 +1,45 @@
+## configs/catboost_config_stage2.yaml
+#
+#model_params:
+#  iterations: 10000          # ← Больше чем Stage 1
+#  task_type: 'GPU'
+#  "verbose": 100
+#  "random_seed": 44
+#  "early_stopping_rounds": 100
+#  "use_best_model": true
+#  "depth": 7
+#  "bootstrap_type": "Bernoulli"
+#  "loss_function": "MultiLogloss"
+#  "eval_metric": "MultiLogloss"
+#  "subsample": 0.9526496797343796
+#  "learning_rate": 0.040056012655064616
+#  "l2_leaf_reg": 16.64526083971831
+#  "border_count": 64
+#  "min_data_in_leaf": 50
+#  "random_strength": 7.723906415307146
+#
+#training:
+#  save_dir: 'D:\\Code\\hackaton_cyberpolka_CV\\models_weight\\catboost'
+
+# configs/catboost_config_stage2.yaml
+
+model_params:
+  iterations: 4100          # ← Больше чем Stage 1
+  task_type: 'GPU'
+  "verbose": 100
+  "random_seed": 44
+  "early_stopping_rounds": 100
+  "use_best_model": true
+  "depth": 7
+  "bootstrap_type": "Bernoulli"
+  "loss_function": "MultiLogloss"
+  "eval_metric": "MultiLogloss"
+  "subsample": 0.9526496797343796
+  "learning_rate": 0.040056012655064616
+  "l2_leaf_reg": 16.64526083971831
+  "border_count": 64
+  "min_data_in_leaf": 50
+  "random_strength": 7.723906415307146
+
+training:
+  save_dir: 'D:\\Code\\hackaton_cyberpolka_CV\\models_weight\\catboost'

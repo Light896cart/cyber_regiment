@@ -1,0 +1,19 @@
+# configs/neural_network/nn_config_stage2.yaml
+# Конфиг для финального обучения Neural Network (Stage 2)
+
+model_params:
+  hidden_layers: [2048, 1024, 512, 256, 128]  # ← Больше чем Stage 1
+  dropout_rate: 0.5
+  use_batch_norm: true
+  activation: 'relu'
+  learning_rate: 0.0002  # ← Меньше для стабильности
+  weight_decay: 0.00001
+  batch_size: 2048
+  epochs: 50  # ← Больше чем Stage 1
+  patience: 20
+  output_dim: null
+
+training:
+  early_stopping: true
+  save_dir: 'D:\\Code\\hackaton_cyberpolka_CV\\models_weight\\neural_network'
+  device: 'cuda'  # Или 'cpu' если нет GPU

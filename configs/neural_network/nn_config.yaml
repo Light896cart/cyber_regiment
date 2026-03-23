@@ -1,0 +1,17 @@
+# configs/neural_network/nn_config.yaml
+model_params:
+  hidden_layers: [512, 256, 128]
+  dropout_rate: 0.3
+  use_batch_norm: true
+  activation: 'relu'
+  learning_rate: 0.0005
+  weight_decay: 0.00001
+  batch_size: 2048
+  epochs: 10
+  patience: 10
+  output_dim: null
+
+training:
+  early_stopping: true
+  save_dir: 'D:\\Code\\hackaton_cyberpolka_CV\\models_weight\\neural_network'
+  device: 'cuda'  # Или 'cpu' если нет GPU

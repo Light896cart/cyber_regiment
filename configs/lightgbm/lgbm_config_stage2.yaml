@@ -1,0 +1,33 @@
+# configs/lightgbm/lgbm_config_stage2.yaml
+model_params:
+  objective: 'binary'
+  metric: 'auc'
+  n_estimators: 600
+  max_depth: 12
+  learning_rate: 0.04180970519898676
+  num_leaves: 39
+  min_child_samples: 102
+  subsample: 0.521715
+  colsample_bytree: 0.205092
+  min_data_in_leaf: 8
+  "feature_fraction": 0.844940354985541
+  "bagging_fraction": 0.9908023309727932
+  "bagging_freq": 1
+  "lambda_l1": 7.397955052502858
+  "lambda_l2": 10.0
+  "max_bin": 127
+  reg_alpha: 8.146025
+  reg_lambda: 7.761833
+  min_split_gain: 0.424512
+  subsample_freq: 2
+  device: 'gpu'
+  force_col_wise: true    # ✅ Для стабильности GPU
+  gpu_use_dp: true
+  feature_pre_filter: false
+  use_scale_pos_weight: true  # ← НОВОЕ: включить/выключить
+
+
+
+training:
+  early_stopping_rounds: 100
+  save_dir: 'D:\\Code\\hackaton_cyberpolka_CV\\models_weight\\lightgbm'
