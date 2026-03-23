@@ -12,7 +12,6 @@ from sklearn.metrics import roc_auc_score
 import json
 from pathlib import Path
 
-
 class MetaLearnerEnsemble:
     """
     Meta-Learner (Stacking) для объединения предсказаний моделей.
