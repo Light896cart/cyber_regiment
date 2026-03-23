@@ -64,6 +64,7 @@ def select_features_catboost(
     # Импортируем CatBoost внутри функции
     from catboost import CatBoostClassifier, Pool
 
+
     # Параметры для быстрой оценки важности
     params = {
         'iterations': 1000,  # Мало итераций для скорости
