@@ -1,0 +1,435 @@
+{
+  "method": "per_target_differential_evolution",
+  "target_weights": {
+    "target_1_1": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_1_2": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_1_3": {
+      "catboost": 0.09459008699670239,
+      "neural_network": 0.029489175091048352,
+      "lightgbm": 0.8759207379122492
+    },
+    "target_1_4": {
+      "catboost": 0.09459008948966068,
+      "neural_network": 0.029489149512860587,
+      "lightgbm": 0.8759207609974787
+    },
+    "target_1_5": {
+      "catboost": 0.23135998226279433,
+      "neural_network": 0.0025803400985448207,
+      "lightgbm": 0.766059677638661
+    },
+    "target_2_1": {
+      "catboost": 0.26458101056968786,
+      "neural_network": 0.020908195799405872,
+      "lightgbm": 0.7145107936309063
+    },
+    "target_2_2": {
+      "catboost": 0.09459008948966068,
+      "neural_network": 0.029489149512860587,
+      "lightgbm": 0.8759207609974787
+    },
+    "target_2_3": {
+      "catboost": 0.33641494601141025,
+      "neural_network": 0.00386413249632198,
+      "lightgbm": 0.6597209214922678
+    },
+    "target_2_4": {
+      "catboost": 0.35615668884152596,
+      "neural_network": 0.010680934894246605,
+      "lightgbm": 0.6331623762642273
+    },
+    "target_2_5": {
+      "catboost": 0.6237337843799092,
+      "neural_network": 0.0047361219549750845,
+      "lightgbm": 0.3715300936651157
+    },
+    "target_2_6": {
+      "catboost": 0.4096776181695591,
+      "neural_network": 0.001597072589183507,
+      "lightgbm": 0.5887253092412573
+    },
+    "target_2_7": {
+      "catboost": 0.019788286121147986,
+      "neural_network": 0.0811531616722448,
+      "lightgbm": 0.8990585522066071
+    },
+    "target_2_8": {
+      "catboost": 0.549678085634057,
+      "neural_network": 0.0144246247845473,
+      "lightgbm": 0.4358972895813958
+    },
+    "target_3_1": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_3_2": {
+      "catboost": 0.09459008948966068,
+      "neural_network": 0.029489149512860587,
+      "lightgbm": 0.8759207609974787
+    },
+    "target_3_3": {
+      "catboost": 0.09166847029727644,
+      "neural_network": 0.0019030392439227052,
+      "lightgbm": 0.9064284904588008
+    },
+    "target_3_4": {
+      "catboost": 0.549678085634057,
+      "neural_network": 0.0144246247845473,
+      "lightgbm": 0.4358972895813958
+    },
+    "target_3_5": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_4_1": {
+      "catboost": 0.549678085634057,
+      "neural_network": 0.0144246247845473,
+      "lightgbm": 0.4358972895813958
+    },
+    "target_5_1": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_5_2": {
+      "catboost": 0.31365825761634036,
+      "neural_network": 0.0018661678554706526,
+      "lightgbm": 0.684475574528189
+    },
+    "target_6_1": {
+      "catboost": 0.5505505509464568,
+      "neural_network": 0.01286029040392708,
+      "lightgbm": 0.4365891586496162
+    },
+    "target_6_2": {
+      "catboost": 0.549678085634057,
+      "neural_network": 0.0144246247845473,
+      "lightgbm": 0.4358972895813958
+    },
+    "target_6_3": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_6_4": {
+      "catboost": 0.549678085634057,
+      "neural_network": 0.0144246247845473,
+      "lightgbm": 0.4358972895813958
+    },
+    "target_6_5": {
+      "catboost": 0.549678085634057,
+      "neural_network": 0.0144246247845473,
+      "lightgbm": 0.4358972895813958
+    },
+    "target_7_1": {
+      "catboost": 0.32521217173720335,
+      "neural_network": 0.07710795577929282,
+      "lightgbm": 0.5976798724835038
+    },
+    "target_7_2": {
+      "catboost": 0.09459008948966068,
+      "neural_network": 0.029489149512860587,
+      "lightgbm": 0.8759207609974787
+    },
+    "target_7_3": {
+      "catboost": 0.5600021457316398,
+      "neural_network": 0.033256170032975596,
+      "lightgbm": 0.40674168423538476
+    },
+    "target_8_1": {
+      "catboost": 0.09459445549658889,
+      "neural_network": 0.029488958107654787,
+      "lightgbm": 0.8759165863957563
+    },
+    "target_8_2": {
+      "catboost": 0.09459008948966068,
+      "neural_network": 0.029489149512860587,
+      "lightgbm": 0.8759207609974787
+    },
+    "target_8_3": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_9_1": {
+      "catboost": 0.4521643151176316,
+      "neural_network": 0.009102017838189275,
+      "lightgbm": 0.538733667044179
+    },
+    "target_9_2": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_9_3": {
+      "catboost": 0.09931896899054307,
+      "neural_network": 0.030963412148430514,
+      "lightgbm": 0.8697176188610265
+    },
+    "target_9_4": {
+      "catboost": 0.2732065327811105,
+      "neural_network": 0.0018462342632214177,
+      "lightgbm": 0.724947232955668
+    },
+    "target_9_5": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_9_6": {
+      "catboost": 0.4748491171025809,
+      "neural_network": 0.02819936063836311,
+      "lightgbm": 0.496951522259056
+    },
+    "target_9_7": {
+      "catboost": 0.14539905439850132,
+      "neural_network": 0.06010224378610447,
+      "lightgbm": 0.7944987018153943
+    },
+    "target_9_8": {
+      "catboost": 0.26458101422670566,
+      "neural_network": 0.02090818226647633,
+      "lightgbm": 0.7145108035068181
+    },
+    "target_10_1": {
+      "catboost": 0.6143478318808432,
+      "neural_network": 0.09471319365905248,
+      "lightgbm": 0.29093897446010425
+    }
+  },
+  "model_names": [
+    "catboost",
+    "neural_network",
+    "lightgbm"
+  ],
+  "comparison": {
+    "per_target_auc": 0.8429080833973095,
+    "equal_weights_auc": 0.8253696790605419,
+    "improvement": 0.017538404336767566,
+    "best_method": "per_target_weights",
+    "target_weights": {
+      "target_1_1": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_1_2": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_1_3": {
+        "catboost": 0.09459008699670239,
+        "neural_network": 0.029489175091048352,
+        "lightgbm": 0.8759207379122492
+      },
+      "target_1_4": {
+        "catboost": 0.09459008948966068,
+        "neural_network": 0.029489149512860587,
+        "lightgbm": 0.8759207609974787
+      },
+      "target_1_5": {
+        "catboost": 0.23135998226279433,
+        "neural_network": 0.0025803400985448207,
+        "lightgbm": 0.766059677638661
+      },
+      "target_2_1": {
+        "catboost": 0.26458101056968786,
+        "neural_network": 0.020908195799405872,
+        "lightgbm": 0.7145107936309063
+      },
+      "target_2_2": {
+        "catboost": 0.09459008948966068,
+        "neural_network": 0.029489149512860587,
+        "lightgbm": 0.8759207609974787
+      },
+      "target_2_3": {
+        "catboost": 0.33641494601141025,
+        "neural_network": 0.00386413249632198,
+        "lightgbm": 0.6597209214922678
+      },
+      "target_2_4": {
+        "catboost": 0.35615668884152596,
+        "neural_network": 0.010680934894246605,
+        "lightgbm": 0.6331623762642273
+      },
+      "target_2_5": {
+        "catboost": 0.6237337843799092,
+        "neural_network": 0.0047361219549750845,
+        "lightgbm": 0.3715300936651157
+      },
+      "target_2_6": {
+        "catboost": 0.4096776181695591,
+        "neural_network": 0.001597072589183507,
+        "lightgbm": 0.5887253092412573
+      },
+      "target_2_7": {
+        "catboost": 0.019788286121147986,
+        "neural_network": 0.0811531616722448,
+        "lightgbm": 0.8990585522066071
+      },
+      "target_2_8": {
+        "catboost": 0.549678085634057,
+        "neural_network": 0.0144246247845473,
+        "lightgbm": 0.4358972895813958
+      },
+      "target_3_1": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_3_2": {
+        "catboost": 0.09459008948966068,
+        "neural_network": 0.029489149512860587,
+        "lightgbm": 0.8759207609974787
+      },
+      "target_3_3": {
+        "catboost": 0.09166847029727644,
+        "neural_network": 0.0019030392439227052,
+        "lightgbm": 0.9064284904588008
+      },
+      "target_3_4": {
+        "catboost": 0.549678085634057,
+        "neural_network": 0.0144246247845473,
+        "lightgbm": 0.4358972895813958
+      },
+      "target_3_5": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_4_1": {
+        "catboost": 0.549678085634057,
+        "neural_network": 0.0144246247845473,
+        "lightgbm": 0.4358972895813958
+      },
+      "target_5_1": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_5_2": {
+        "catboost": 0.31365825761634036,
+        "neural_network": 0.0018661678554706526,
+        "lightgbm": 0.684475574528189
+      },
+      "target_6_1": {
+        "catboost": 0.5505505509464568,
+        "neural_network": 0.01286029040392708,
+        "lightgbm": 0.4365891586496162
+      },
+      "target_6_2": {
+        "catboost": 0.549678085634057,
+        "neural_network": 0.0144246247845473,
+        "lightgbm": 0.4358972895813958
+      },
+      "target_6_3": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_6_4": {
+        "catboost": 0.549678085634057,
+        "neural_network": 0.0144246247845473,
+        "lightgbm": 0.4358972895813958
+      },
+      "target_6_5": {
+        "catboost": 0.549678085634057,
+        "neural_network": 0.0144246247845473,
+        "lightgbm": 0.4358972895813958
+      },
+      "target_7_1": {
+        "catboost": 0.32521217173720335,
+        "neural_network": 0.07710795577929282,
+        "lightgbm": 0.5976798724835038
+      },
+      "target_7_2": {
+        "catboost": 0.09459008948966068,
+        "neural_network": 0.029489149512860587,
+        "lightgbm": 0.8759207609974787
+      },
+      "target_7_3": {
+        "catboost": 0.5600021457316398,
+        "neural_network": 0.033256170032975596,
+        "lightgbm": 0.40674168423538476
+      },
+      "target_8_1": {
+        "catboost": 0.09459445549658889,
+        "neural_network": 0.029488958107654787,
+        "lightgbm": 0.8759165863957563
+      },
+      "target_8_2": {
+        "catboost": 0.09459008948966068,
+        "neural_network": 0.029489149512860587,
+        "lightgbm": 0.8759207609974787
+      },
+      "target_8_3": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_9_1": {
+        "catboost": 0.4521643151176316,
+        "neural_network": 0.009102017838189275,
+        "lightgbm": 0.538733667044179
+      },
+      "target_9_2": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_9_3": {
+        "catboost": 0.09931896899054307,
+        "neural_network": 0.030963412148430514,
+        "lightgbm": 0.8697176188610265
+      },
+      "target_9_4": {
+        "catboost": 0.2732065327811105,
+        "neural_network": 0.0018462342632214177,
+        "lightgbm": 0.724947232955668
+      },
+      "target_9_5": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_9_6": {
+        "catboost": 0.4748491171025809,
+        "neural_network": 0.02819936063836311,
+        "lightgbm": 0.496951522259056
+      },
+      "target_9_7": {
+        "catboost": 0.14539905439850132,
+        "neural_network": 0.06010224378610447,
+        "lightgbm": 0.7944987018153943
+      },
+      "target_9_8": {
+        "catboost": 0.26458101422670566,
+        "neural_network": 0.02090818226647633,
+        "lightgbm": 0.7145108035068181
+      },
+      "target_10_1": {
+        "catboost": 0.6143478318808432,
+        "neural_network": 0.09471319365905248,
+        "lightgbm": 0.29093897446010425
+      }
+    },
+    "n_targets": 41,
+    "n_models": 3
+  },
+  "metadata": {
+    "stage": "stage2_validation",
+    "n_iterations": 70,
+    "date": "2026-03-19T19:46:06.560157"
+  }
+}

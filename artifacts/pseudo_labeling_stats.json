@@ -1,0 +1,277 @@
+{
+  "config": {
+    "threshold_high": 0.95,
+    "threshold_low": 0.05,
+    "pseudo_sample_weight": 0.6,
+    "min_pseudo_samples": 1000,
+    "max_pseudo_samples": 50000,
+    "models_to_retrain": [
+      "lgbm"
+    ],
+    "stratify_by_class": true,
+    "save_pseudo_labels": true
+  },
+  "selection_stats": {
+    "total_test": 250000,
+    "confident_per_target": {
+      "target_1_1": {
+        "total": 241628,
+        "class_1": 0,
+        "class_0": 241628,
+        "ratio": 0.966512
+      },
+      "target_1_2": {
+        "total": 248981,
+        "class_1": 0,
+        "class_0": 248981,
+        "ratio": 0.995924
+      },
+      "target_1_3": {
+        "total": 219289,
+        "class_1": 0,
+        "class_0": 219289,
+        "ratio": 0.877156
+      },
+      "target_1_4": {
+        "total": 215929,
+        "class_1": 0,
+        "class_0": 215929,
+        "ratio": 0.863716
+      },
+      "target_1_5": {
+        "total": 249299,
+        "class_1": 0,
+        "class_0": 249299,
+        "ratio": 0.997196
+      },
+      "target_2_1": {
+        "total": 246420,
+        "class_1": 0,
+        "class_0": 246420,
+        "ratio": 0.98568
+      },
+      "target_2_2": {
+        "total": 227135,
+        "class_1": 0,
+        "class_0": 227135,
+        "ratio": 0.90854
+      },
+      "target_2_3": {
+        "total": 249999,
+        "class_1": 0,
+        "class_0": 249999,
+        "ratio": 0.999996
+      },
+      "target_2_4": {
+        "total": 247078,
+        "class_1": 0,
+        "class_0": 247078,
+        "ratio": 0.988312
+      },
+      "target_2_5": {
+        "total": 249837,
+        "class_1": 0,
+        "class_0": 249837,
+        "ratio": 0.999348
+      },
+      "target_2_6": {
+        "total": 249028,
+        "class_1": 0,
+        "class_0": 249028,
+        "ratio": 0.996112
+      },
+      "target_2_7": {
+        "total": 249999,
+        "class_1": 0,
+        "class_0": 249999,
+        "ratio": 0.999996
+      },
+      "target_2_8": {
+        "total": 249981,
+        "class_1": 0,
+        "class_0": 249981,
+        "ratio": 0.999924
+      },
+      "target_3_1": {
+        "total": 65277,
+        "class_1": 0,
+        "class_0": 65277,
+        "ratio": 0.261108
+      },
+      "target_3_2": {
+        "total": 171551,
+        "class_1": 0,
+        "class_0": 171551,
+        "ratio": 0.686204
+      },
+      "target_3_3": {
+        "total": 249984,
+        "class_1": 0,
+        "class_0": 249984,
+        "ratio": 0.999936
+      },
+      "target_3_4": {
+        "total": 248426,
+        "class_1": 0,
+        "class_0": 248426,
+        "ratio": 0.993704
+      },
+      "target_3_5": {
+        "total": 248538,
+        "class_1": 0,
+        "class_0": 248538,
+        "ratio": 0.994152
+      },
+      "target_4_1": {
+        "total": 241493,
+        "class_1": 0,
+        "class_0": 241493,
+        "ratio": 0.965972
+      },
+      "target_5_1": {
+        "total": 245945,
+        "class_1": 0,
+        "class_0": 245945,
+        "ratio": 0.98378
+      },
+      "target_5_2": {
+        "total": 249905,
+        "class_1": 0,
+        "class_0": 249905,
+        "ratio": 0.99962
+      },
+      "target_6_1": {
+        "total": 248207,
+        "class_1": 0,
+        "class_0": 248207,
+        "ratio": 0.992828
+      },
+      "target_6_2": {
+        "total": 248017,
+        "class_1": 0,
+        "class_0": 248017,
+        "ratio": 0.992068
+      },
+      "target_6_3": {
+        "total": 248313,
+        "class_1": 0,
+        "class_0": 248313,
+        "ratio": 0.993252
+      },
+      "target_6_4": {
+        "total": 241832,
+        "class_1": 0,
+        "class_0": 241832,
+        "ratio": 0.967328
+      },
+      "target_6_5": {
+        "total": 249785,
+        "class_1": 0,
+        "class_0": 249785,
+        "ratio": 0.99914
+      },
+      "target_7_1": {
+        "total": 131428,
+        "class_1": 0,
+        "class_0": 131428,
+        "ratio": 0.525712
+      },
+      "target_7_2": {
+        "total": 222512,
+        "class_1": 0,
+        "class_0": 222512,
+        "ratio": 0.890048
+      },
+      "target_7_3": {
+        "total": 248509,
+        "class_1": 0,
+        "class_0": 248509,
+        "ratio": 0.994036
+      },
+      "target_8_1": {
+        "total": 214287,
+        "class_1": 10205,
+        "class_0": 204082,
+        "ratio": 0.857148
+      },
+      "target_8_2": {
+        "total": 207546,
+        "class_1": 0,
+        "class_0": 207546,
+        "ratio": 0.830184
+      },
+      "target_8_3": {
+        "total": 234668,
+        "class_1": 0,
+        "class_0": 234668,
+        "ratio": 0.938672
+      },
+      "target_9_1": {
+        "total": 249448,
+        "class_1": 0,
+        "class_0": 249448,
+        "ratio": 0.997792
+      },
+      "target_9_2": {
+        "total": 189971,
+        "class_1": 0,
+        "class_0": 189971,
+        "ratio": 0.759884
+      },
+      "target_9_3": {
+        "total": 240394,
+        "class_1": 0,
+        "class_0": 240394,
+        "ratio": 0.961576
+      },
+      "target_9_4": {
+        "total": 249179,
+        "class_1": 0,
+        "class_0": 249179,
+        "ratio": 0.996716
+      },
+      "target_9_5": {
+        "total": 245111,
+        "class_1": 0,
+        "class_0": 245111,
+        "ratio": 0.980444
+      },
+      "target_9_6": {
+        "total": 15235,
+        "class_1": 0,
+        "class_0": 15235,
+        "ratio": 0.06094
+      },
+      "target_9_7": {
+        "total": 115238,
+        "class_1": 0,
+        "class_0": 115238,
+        "ratio": 0.460952
+      },
+      "target_9_8": {
+        "total": 231781,
+        "class_1": 0,
+        "class_0": 231781,
+        "ratio": 0.927124
+      },
+      "target_10_1": {
+        "total": 20268,
+        "class_1": 229,
+        "class_0": 20039,
+        "ratio": 0.081072
+      }
+    },
+    "selected_pseudo_samples": 50000,
+    "selection_ratio": 0.2
+  },
+  "combine_stats": {
+    "n_train": 750000,
+    "n_pseudo": 50000,
+    "n_combined": 800000,
+    "pseudo_ratio": 0.0625
+  },
+  "models_retrained": [
+    "lgbm"
+  ],
+  "timestamp": "2026-03-19T23:43:39.332885"
+}

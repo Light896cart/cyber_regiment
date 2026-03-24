@@ -1,0 +1,11 @@
+{
+  "n_splits": 3,
+  "models": [
+    "catboost",
+    "lgbm",
+    "nn"
+  ],
+  "calibration": true,
+  "adversarial_filter": false,
+  "timestamp": "2026-03-11T08:10:37.379812"
+}
