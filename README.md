@@ -282,22 +282,25 @@ Meta-Learner для ансамблирования через Ridge/Logistic/GBM
 ## 🚀 Быстрый старт
 
 ```bash
-# 1. Обработка данных
+# 1. Установка зависимостей
+pip install -r requirements.txt
+
+# 2. Обработка данных
 python scripts/00_full_data_processing.py
 
-# 2. Генерация фолдов
+# 3. Генерация фолдов
 python scripts/01_generate_folds.py
 
-# 3. Stage 1: OOF предсказания
+# 4. Stage 1: OOF предсказания
 python scripts/02_stage1_proxy_training.py
 
-# 4. Stage 2: Валидация и оптимизация весов
+# 5. Stage 2: Валидация и оптимизация весов
 python scripts/03_stage2_validation.py
 
-# 5. Инференс и сабмит
+# 6. Инференс и сабмит
 python scripts/04_inference_submission.py
 
-# 6. Анализ результатов
+# 7. Анализ результатов
 python scripts/06_analyze_models.py
 ```
 
